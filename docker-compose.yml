@@ -1,0 +1,41 @@
+services:
+  backend-library-service:
+    image: 'mouralucas/rolf-services:{service_name}'
+    build: .
+    environment:
+      - [service_name]_database_url=$[service_name]_database_url
+    ports:
+      - "[next_available_port]:8000"
+
+  nginx:
+    restart: unless-stopped
+    image: nginx
+    ports:
+      - "[next_available_port]:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - "backend-[service_name]-service"
+    environment:
+      - server_host={$server_host}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "1"
+
+  pg_library_service:
+    container_name: 'pg_[service_name]_service'
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: dev-user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: [service_name]_dev_db
+    ports:
+      - "[next_available_port]:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data:cached
+
+volumes:
+  db-data:
