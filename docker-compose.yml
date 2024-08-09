@@ -1,6 +1,6 @@
 services:
-  backend-library-service:
-    image: 'mouralucas/rolf-services:{service_name}'
+  backend-[service_name]-service:
+    image: 'mouralucas/rolf-services:[service_name]'
     build: .
     environment:
       - [service_name]_database_url=$[service_name]_database_url
@@ -24,7 +24,7 @@ services:
         max-size: "10m"
         max-file: "1"
 
-  pg_library_service:
+  pg_[service_name]_service:
     container_name: 'pg_[service_name]_service'
     image: postgres:15-alpine
     restart: always
